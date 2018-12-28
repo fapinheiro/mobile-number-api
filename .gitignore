@@ -1,5 +1,6 @@
 /target/
 /bin/
 /.settings/
+/.vscode/
 .classpath
 .project

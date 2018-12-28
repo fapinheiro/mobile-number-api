@@ -13,7 +13,7 @@ A REST Web-Service responsible of maintaining a database of mobile numbers.
 # Used Technologies
 
 - **Eclipse Neon** - 4.6.3
-- **JDK** - 1.8.0_91
+- **OPEN JDK** - 10.0.2
 - **Spring-Boot** - 2.0.3
 - **Maven** - 3.5.4
 - **H2 in-memory database** 
