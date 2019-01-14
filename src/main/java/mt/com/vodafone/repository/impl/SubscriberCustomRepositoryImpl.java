@@ -1,9 +1,9 @@
-package mt.com.vodafone.dao.impl;
+package mt.com.vodafone.repository.impl;
 
 import java.util.Optional;
 
-import mt.com.vodafone.dao.SubscriberCustomRepository;
-import mt.com.vodafone.model.Subscriber;
+import mt.com.vodafone.repository.SubscriberCustomRepository;
+import mt.com.vodafone.entity.Subscriber;
 
 public class SubscriberCustomRepositoryImpl implements SubscriberCustomRepository {
 	

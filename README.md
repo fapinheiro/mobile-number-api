@@ -72,19 +72,30 @@ To run the Web-Service, follow the steps below according to your operation syste
 Using `curl` command tool
 
 ## List
-curl -X GET http://localhost:8080/subscribers
+curl -i -k -X GET http://localhost:8080/api/subscribers
 
 ## Get
-curl -X GET http://localhost:8080/subscribers/1
+curl -i -k -X GET http://localhost:8080/subscribers/1
 
 ## Create
-curl -X POST -H "Content-Type: application/json" -d "{ \"msisdn\": \"1155972532645\", \"customerIdOwner\": 0, \"customerIdUser\": 0,  \"serviceType\": \"MOBILE_PREPAID\", \"serviceStartDate\": 1528208058559 }" http://localhost:8080/subscribers
+curl -i -k -X POST -H "Content-Type: application/json" -d "{ \"msisdn\": \"1155972532645\", \"customerIdOwner\": 0, \"customerIdUser\": 0,  \"serviceType\": \"MOBILE_PREPAID\", \"serviceStartDate\": 1528208058559 }" http://localhost:8080/subscribers
 
-curl -X POST -H "Content-Type: application/json" -d "{ \"msisdn\": \"1155974786091\", \"customerIdOwner\": 1, \"customerIdUser\": 1,  \"serviceType\": \"MOBILE_POSTPAID\", \"serviceStartDate\": 1528208058550 }" http://localhost:8080/subscribers
+curl -i -k -X POST -H "Content-Type: application/json" -d "{ \"msisdn\": \"1155974786091\", \"customerIdOwner\": 1, \"customerIdUser\": 1,  \"serviceType\": \"MOBILE_POSTPAID\", \"serviceStartDate\": 1528208058550 }" http://localhost:8080/subscribers
 
 ## Update
-curl -X PUT -H "Content-Type: application/json" -d "{ \"msisdn\": \"1155972532644\", \"customerIdOwner\": 1, \"customerIdUser\": 1,  \"serviceType\": \"MOBILE_POSTPAID\", \"serviceStartDate\": 1528208058559 }" http://localhost:8080/subscribers/1
+curl -i -k -X PUT -H "Content-Type: application/json" -d "{ \"msisdn\": \"1155972532644\", \"customerIdOwner\": 1, \"customerIdUser\": 1,  \"serviceType\": \"MOBILE_POSTPAID\", \"serviceStartDate\": 1528208058559 }" http://localhost:8080/subscribers/1
 
 ## Delete
-curl -X DELETE -H "Content-Type: application/json" http://localhost:8080/subscribers/1
+curl -i -k -X DELETE -H "Content-Type: application/json" http://localhost:8080/subscribers/1
+
+##  Authentication JWT
+
+### Create user
+curl -i -k -i -H "Content-Type: application/json" -X POST -d "{ \"username\": \"filipe\",\"password\": \"123\"}" http://localhost:8080/api/users/sign-up
+
+### Login User
+curl -i -k -H "Content-Type: application/json" -X POST -d "{ \"username\": \"filipe\",\"password\": \"123\"}" http://localhost:8080/api/login
+
+### Header Bearer
+curl -i -k -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmaWxpcGUiLCJleHAiOjE1NDc0ODUwNTh9.YSYvpHnk0AADXL5dzNen8M8GFkhG2S3XtkvNza2PmVtkaUqqcLFJtKPAQ1e9XGsfZycBxEk3xK4argz7sAPdQQ" -X GET http://localhost:8080/api/subscribers
 

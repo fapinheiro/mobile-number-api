@@ -14,6 +14,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,8 +28,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mt.com.vodafone.application.Application;
-import mt.com.vodafone.dao.SubscriberRepository;
-import mt.com.vodafone.model.Subscriber;
+import mt.com.vodafone.repository.SubscriberRepository;
+import mt.com.vodafone.repository.UserRepository;
+import mt.com.vodafone.entity.Subscriber;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = Application.class)
@@ -35,30 +38,55 @@ import mt.com.vodafone.model.Subscriber;
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class SubscriberControllerTests {
 
+	private static final Logger LOG = LoggerFactory.getLogger(SubscriberControllerTests.class);
+
 	@Autowired
 	private MockMvc mockMvc;
 
 	@Autowired
 	private SubscriberRepository subscriberRepository;
 
+	@Autowired
+	private UserRepository userRepository;
+
+	private static String authorization;
+
 	@Before
-	public void deleteAllBeforeTests() throws Exception {
+	public void beforeTests() throws Exception {
+
+		// Clean database
 		subscriberRepository.deleteAll();
+		userRepository.deleteAll();
+
+		// Create user
+		final String body = "{ \"username\": \"filipe\", \"password\": \"123\"}";
+		mockMvc.perform(
+				post("/api/users/sign-up")
+				.header("Content-Type", "application/json").content(body))
+				.andExpect(status().isOk());
+
+		// Login user
+		MvcResult ret = mockMvc.perform(
+			post("/api/login")
+			.header("Content-Type", "application/json").content(body))
+			.andExpect(status().isOk()).andReturn();
+
+		authorization = ret.getResponse().getHeader("Authorization");
 	}
 
 	@Test
 	public void shouldTestIfSubscriberDoesNotExist() throws Exception {
-		mockMvc.perform(get("/subscribers/-1")).andExpect(status().isNotFound());
+		mockMvc.perform(get("/api/subscribers/-1").header("Authorization", authorization)).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void shouldCheckSubscriberBeforeDeleting() throws Exception {
-		mockMvc.perform(delete("/subscribers/-1")).andExpect(status().isNotFound());
+		mockMvc.perform(delete("/api/subscribers/-1").header("Authorization", authorization)).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void shouldReturnEmptyArrayWhenNoSubscribersFound() throws Exception {
-		MvcResult mvcResult = mockMvc.perform(get("/subscribers")).andDo(print()).andExpect(status().isOk())
+		MvcResult mvcResult = mockMvc.perform(get("/api/subscribers").header("Authorization", authorization)).andDo(print()).andExpect(status().isOk())
 				.andReturn();
 		String body = mvcResult.getResponse().getContentAsString();
 		assertThat(body).isEqualTo("[]");
@@ -70,11 +98,11 @@ public class SubscriberControllerTests {
 		final String body = "{ \"msisdn\": \"1155972532645\", \"customerIdOwner\": 0, \"customerIdUser\": 0,  \"serviceType\": \"MOBILE_PREPAID\", \"serviceStartDate\": 1528208058559 }";
 
 		// Create subscriber
-		mockMvc.perform(post("/subscribers").header("Content-Type", "application/json").content(body))
+		mockMvc.perform(post("/api/subscribers").header("Authorization", authorization).header("Content-Type", "application/json").content(body))
 				.andExpect(status().isOk());
 
 		// Try to create the same subscriber
-		mockMvc.perform(post("/subscribers").header("Content-Type", "application/json").content(body))
+		mockMvc.perform(post("/api/subscribers").header("Authorization", authorization).header("Content-Type", "application/json").content(body))
 				.andExpect(status().isConflict());
 	}
 
@@ -84,7 +112,7 @@ public class SubscriberControllerTests {
 		// Create subscriber
 		String body = "{ \"msisdn\": \"1155985408857\", \"customerIdOwner\": 0, \"customerIdUser\": 0,  \"serviceType\": \"MOBILE_PREPAID\", \"serviceStartDate\": 1528208058559 }";
 		MvcResult mvcResult = mockMvc
-				.perform(post("/subscribers").header("Content-Type", "application/json").content(body))
+				.perform(post("/api/subscribers").header("Authorization", authorization).header("Content-Type", "application/json").content(body))
 				.andExpect(status().isOk()).andReturn();
 
 		// Mapping jsonResponse to the class
@@ -94,7 +122,7 @@ public class SubscriberControllerTests {
 		// Trying to alter all fields
 		body = "{ \"msisdn\": \"1155985408858\", \"customerIdOwner\": 1, \"customerIdUser\": 1,  \"serviceType\": \"MOBILE_POSTPAID\", \"serviceStartDate\": 1528208058558 }";
 		mvcResult = mockMvc.perform(
-				put("/subscribers/" + subscriber.getId()).header("Content-Type", "application/json").content(body))
+				put("/api/subscribers/" + subscriber.getId()).header("Authorization", authorization).header("Content-Type", "application/json").content(body))
 				.andExpect(status().isOk()).andReturn();
 
 		// Mapping jsonResponse to class
@@ -116,7 +144,7 @@ public class SubscriberControllerTests {
 		// Trying to alter all fields
 		String body = "{ \"msisdn\": \"1155985408858\", \"customerIdOwner\": 1, \"customerIdUser\": 1,  \"serviceType\": \"MOBILE_POSTPAID\", \"serviceStartDate\": 1528208058558 }";
 		mockMvc.perform(
-				put("/subscribers/-1").header("Content-Type", "application/json").content(body))
+				put("/api/subscribers/-1").header("Authorization", authorization).header("Content-Type", "application/json").content(body))
 				.andExpect(status().isNotFound());
 
 	}
@@ -126,8 +154,9 @@ public class SubscriberControllerTests {
 
 		// Create subscriber
 		String body = "{ \"msisdn\": \"1155985408856\", \"customerIdOwner\": 0, \"customerIdUser\": 0,  \"serviceType\": \"MOBILE_PREPAID\", \"serviceStartDate\": 1528208058559 }";
+		
 		MvcResult mvcResult = mockMvc
-				.perform(post("/subscribers").header("Content-Type", "application/json").content(body))
+				.perform(post("/api/subscribers").header("Authorization", authorization).header("Content-Type", "application/json").content(body))
 				.andExpect(status().isOk()).andReturn();
 
 		// Mapping jsonResponse to the class
@@ -135,7 +164,7 @@ public class SubscriberControllerTests {
 		Subscriber subscriber = mapper.readValue(mvcResult.getResponse().getContentAsString(), Subscriber.class);
 
 		// Deleting
-		mockMvc.perform(delete("/subscribers/" + subscriber.getId()).header("Content-Type", "application/json"))
+		mockMvc.perform(delete("/api/subscribers/" + subscriber.getId()).header("Authorization", authorization).header("Content-Type", "application/json"))
 				.andExpect(status().isNoContent());
 
 	}
