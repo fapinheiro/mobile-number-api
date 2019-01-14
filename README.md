@@ -1,29 +1,24 @@
 # Mobile Number API - Vodafone
 
-A REST Web-Service responsible of maintaining a database of mobile numbers.
+A REST Web-Service responsible of maintaining a database of mobile numbers. Uses JWT Authentication and runs with Docker.
 
 ## Endpoints
 
 ### API
-`http://localhost:8080/subscribers`
+`http://localhost:8080/api/subscribers`
+`http://localhost:8080/api/users/sign-up`
+`http://localhost:8080/api/login`
 
 ### Database
 `http://localhost:8080/h2-console`
 
 # Used Technologies
 
-- **Eclipse Neon** - 4.6.3
+- **VS Code** - 1.24.11
 - **OPEN JDK** - 10.0.2
 - **Spring-Boot** - 2.0.3
 - **Maven** - 3.5.4
 - **H2 in-memory database** 
-
-### Things to Think Before Going in Production
-
-- Security: OATH 2.0 or JWT
-- Persistent Database: MySQL or PostgreSQL
-- Cloud x On-Premise
-- API Gateway: Rate limit, Payload Size, SQL Injection, etc.
 
 # Properties 
 
@@ -67,9 +62,23 @@ To run the Web-Service, follow the steps below according to your operation syste
 - for development environment:
 `java -Dspring.profiles.active=dev -jar mobile-number-api-<version>.jar &`
 
-# Basic requests examples
+# Requests examples
 
-Using `curl` command tool
+Using `curl` command tool in Windows
+
+##  Authentication JWT
+
+### Create user
+curl -i -k -i -H "Content-Type: application/json" -X POST -d "{ \"username\": \"filipe\",\"password\": \"123\"}" http://localhost:8080/api/users/sign-up
+
+### Login User
+curl -i -k -H "Content-Type: application/json" -X POST -d "{ \"username\": \"filipe\",\"password\": \"123\"}" http://localhost:8080/api/login
+
+### Header Bearer
+curl -i -k -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmaWxpcGUiLCJleHAiOjE1NDc0ODUwNTh9.YSYvpHnk0AADXL5dzNen8M8GFkhG2S3XtkvNza2PmVtkaUqqcLFJtKPAQ1e9XGsfZycBxEk3xK4argz7sAPdQQ" -X GET http://localhost:8080/api/subscribers
+
+
+##  Basic Requests
 
 ## List
 curl -i -k -X GET http://localhost:8080/api/subscribers
@@ -88,14 +97,6 @@ curl -i -k -X PUT -H "Content-Type: application/json" -d "{ \"msisdn\": \"115597
 ## Delete
 curl -i -k -X DELETE -H "Content-Type: application/json" http://localhost:8080/subscribers/1
 
-##  Authentication JWT
 
-### Create user
-curl -i -k -i -H "Content-Type: application/json" -X POST -d "{ \"username\": \"filipe\",\"password\": \"123\"}" http://localhost:8080/api/users/sign-up
 
-### Login User
-curl -i -k -H "Content-Type: application/json" -X POST -d "{ \"username\": \"filipe\",\"password\": \"123\"}" http://localhost:8080/api/login
-
-### Header Bearer
-curl -i -k -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmaWxpcGUiLCJleHAiOjE1NDc0ODUwNTh9.YSYvpHnk0AADXL5dzNen8M8GFkhG2S3XtkvNza2PmVtkaUqqcLFJtKPAQ1e9XGsfZycBxEk3xK4argz7sAPdQQ" -X GET http://localhost:8080/api/subscribers
 
