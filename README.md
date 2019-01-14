@@ -6,7 +6,9 @@ A REST Web-Service responsible of maintaining a database of mobile numbers. Uses
 
 ### API
 `http://localhost:8080/api/subscribers`
+
 `http://localhost:8080/api/users/sign-up`
+
 `http://localhost:8080/api/login`
 
 ### Database
