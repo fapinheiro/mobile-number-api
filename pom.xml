@@ -13,7 +13,7 @@
 	</parent>
 
 	<properties>
-		<java.version>1.10</java.version>
+		<java.version>1.8</java.version>
 		<jacoco.line.coverage>0.7</jacoco.line.coverage>
 		<jacoco.branch.coverage>0.7</jacoco.branch.coverage>
 		<jacoco.version>0.8.2</jacoco.version>
